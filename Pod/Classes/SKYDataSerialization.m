@@ -79,9 +79,27 @@ NSString *localFunctionName(NSString *remoteFunctionName)
     return formatter;
 }
 
++ (NSDateFormatter *)dateFormatter2
+{
+    // Skygear-server use RFC3339Nano, ref: https://golang.org/pkg/time/
+    static NSDateFormatter *formatter;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    });
+    
+    return formatter;
+}
+
 + (NSDate *)dateFromString:(NSString *)dateStr
 {
-    return [[self.class dateFormatter] dateFromString:dateStr];
+    if([[self.class dateFormatter] dateFromString:dateStr]) {
+        return [[self.class dateFormatter] dateFromString:dateStr];
+    } else {
+        return [[self.class dateFormatter2] dateFromString:dateStr];
+    }
 }
 + (NSString *)stringFromDate:(NSDate *)date
 {
